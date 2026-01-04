@@ -1,0 +1,99 @@
+### 1. Создание страны (Россия)
+POST http://localhost:8080/api/countries
+Content-Type: application/json
+
+{
+  "code": "RU",
+  "name": "Russia",
+  "capital": "Moscow",
+  "currency": "RUB"
+}
+
+###
+
+### 2. Создание ещё одной страны (США)
+POST http://localhost:8080/api/countries
+Content-Type: application/json
+
+{
+  "code": "US",
+  "name": "United States",
+  "capital": "Washington, D.C.",
+  "currency": "USD"
+}
+
+###
+
+### 3. Получение всех стран (первый раз - должен быть CACHE MISS)
+GET http://localhost:8080/api/countries
+Accept: application/json
+
+###
+
+### 4. Получение всех стран ещё раз (теперь должен быть CACHE HIT - быстрее)
+GET http://localhost:8080/api/countries
+Accept: application/json
+
+###
+
+### 5. Получение страны по ID (замени <id> на реальный из ответа выше, например 1)
+GET http://localhost:8080/api/countries/1
+Accept: application/json
+
+###
+
+### 6. Повторный запрос той же страны (должен быть из кэша - CACHE HIT)
+GET http://localhost:8080/api/countries/1
+Accept: application/json
+
+###
+
+### 7. Обновление страны (изменяем название - кэш должен очиститься)
+PUT http://localhost:8080/api/countries
+Content-Type: application/json
+
+{
+  "id": 1,
+  "code": "RU",
+  "name": "Russian Federation",
+  "capital": "Moscow",
+  "currency": "RUB"
+}
+
+###
+
+### 8. Получение той же страны после обновления (должен быть CACHE MISS - снова из БД)
+GET http://localhost:8080/api/countries/1
+Accept: application/json
+
+###
+
+### 9. Удаление страны по ID
+DELETE http://localhost:8080/api/countries/2
+
+###
+
+### 10. Попытка получить удалённую страну (должен вернуть 404)
+GET http://localhost:8080/api/countries/2
+Accept: application/json
+
+###
+
+### 11. Получение всех стран после изменений (список должен обновиться)
+GET http://localhost:8080/api/countries
+Accept: application/json
+
+### Получить топ-10 самых популярных стран (из Redis ZSET — мгновенно!)
+GET http://localhost:8080/api/countries/top?limit=5
+Accept: application/json
+
+###
+
+### Имитируем много запросов к одной стране (например, ID=1)
+GET http://localhost:8080/api/countries/1
+GET http://localhost:8080/api/countries/1
+GET http://localhost:8080/api/countries/1
+GET http://localhost:8080/api/countries/2
+
+### Теперь топ должен показать, что страна с ID=1 — лидер
+GET http://localhost:8080/api/countries/top
